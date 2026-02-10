@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TUV Rheinland LLC Certificate Verification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        min-height: 100vh;
+        color: #1e293b;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .logo {
+        width: 180px;
+        height: auto;
+        margin-bottom: 24px;
+      }
+
+      .header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 8px;
+      }
+
+      .header p {
+        color: #64748b;
+        font-size: 1rem;
+      }
+
+      .search-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        margin-bottom: 24px;
+      }
+
+      .search-box {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .search-input {
+        flex: 1;
+        padding: 14px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        font-family: inherit;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+      }
+
+      .search-input::placeholder {
+        color: #94a3b8;
+      }
+
+      .search-btn {
+        padding: 14px 28px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+      }
+
+      .search-btn:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+      }
+
+      .search-btn:active {
+        transform: translateY(0);
+      }
+
+      .search-btn:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .hint {
+        color: #64748b;
+        font-size: 0.875rem;
+        text-align: center;
+      }
+
+      .result-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        display: none;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .result-card.show {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .result-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f1f5f9;
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      .status-badge.valid {
+        background: #dcfce7;
+        color: #166534;
+        animation: pulseGreen 2s ease-in-out infinite;
+      }
+
+      .status-badge.expired {
+        background: #fee2e2;
+        color: #991b1b;
+        animation: pulseRed 2s ease-in-out infinite;
+      }
+
+      @keyframes pulseGreen {
+        0%, 100% {
+          box-shadow: 0 0 0 0 rgba(22, 101, 52, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 10px rgba(22, 101, 52, 0);
+        }
+      }
+
+      @keyframes pulseRed {
+        0%, 100% {
+          box-shadow: 0 0 0 0 rgba(153, 27, 27, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 10px rgba(153, 27, 27, 0);
+        }
+      }
+
+      /* Seal/Stamp Animation */
+      .seal-container {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 120px;
+        height: 120px;
+        pointer-events: none;
+      }
+
+      .seal {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 4px solid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-align: center;
+        line-height: 1.2;
+        opacity: 0;
+        transform: scale(2) rotate(-30deg);
+        animation: stampIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        animation-delay: 0.2s;
+        position: relative;
+      }
+
+      .seal::before {
+        content: '';
+        position: absolute;
+        inset: -8px;
+        border-radius: 50%;
+        border: 2px dashed;
+        opacity: 0.5;
+        animation: rotateSeal 20s linear infinite;
+      }
+
+      .seal.valid {
+        border-color: #22c55e;
+        color: #15803d;
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3), inset 0 2px 10px rgba(255, 255, 255, 0.5);
+      }
+
+      .seal.valid::before {
+        border-color: #22c55e;
+      }
+
+      .seal.expired {
+        border-color: #ef4444;
+        color: #b91c1c;
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3), inset 0 2px 10px rgba(255, 255, 255, 0.5);
+      }
+
+      .seal.expired::before {
+        border-color: #ef4444;
+      }
+
+      .seal-icon {
+        font-size: 1.75rem;
+        margin-bottom: 2px;
+      }
+
+      .seal-text {
+        font-size: 0.7rem;
+      }
+
+      @keyframes stampIn {
+        0% {
+          opacity: 0;
+          transform: scale(2) rotate(-30deg);
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(-12deg);
+        }
+      }
+
+      @keyframes rotateSeal {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Stamp impact effect */
+      .stamp-impact {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      .stamp-impact::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 2px solid;
+        opacity: 0;
+        animation: impactRipple 0.6s ease-out forwards;
+        animation-delay: 0.3s;
+      }
+
+      .stamp-impact.valid::after {
+        border-color: #22c55e;
+      }
+
+      .stamp-impact.expired::after {
+        border-color: #ef4444;
+      }
+
+      @keyframes impactRipple {
+        0% {
+          transform: scale(0.5);
+          opacity: 0.6;
+        }
+        100% {
+          transform: scale(1.5);
+          opacity: 0;
+        }
+      }
+
+      .status-icon {
+        width: 18px;
+        height: 18px;
+      }
+
+      .result-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      .details-grid {
+        display: grid;
+        gap: 20px;
+      }
+
+      .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .detail-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+      }
+
+      .detail-value {
+        font-size: 1rem;
+        color: #0f172a;
+        font-weight: 500;
+      }
+
+      .not-found {
+        text-align: center;
+        padding: 40px 20px;
+      }
+
+      .not-found-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        color: #ef4444;
+      }
+
+      .not-found h3 {
+        font-size: 1.25rem;
+        color: #0f172a;
+        margin-bottom: 8px;
+      }
+
+      .not-found p {
+        color: #64748b;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #64748b;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #e2e8f0;
+        border-top-color: #dc2626;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 40px;
+        color: #64748b;
+        font-size: 0.875rem;
+      }
+
+      .footer a {
+        color: #dc2626;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 640px) {
+        .container {
+          padding: 20px 16px;
+        }
+
+        .header h1 {
+          font-size: 1.5rem;
+        }
+
+        .search-box {
+          flex-direction: column;
+        }
+
+        .search-btn {
+          width: 100%;
+        }
+
+        .search-card,
+        .result-card {
+          padding: 24px;
+        }
+
+        .seal-container {
+          width: 80px;
+          height: 80px;
+          top: 10px;
+          right: 10px;
+        }
+
+        .seal {
+          font-size: 0.6rem;
+          border-width: 3px;
+        }
+
+        .seal-icon {
+          font-size: 1.25rem;
+        }
+
+        .seal-text {
+          font-size: 0.55rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <img src="IMG_9920.png" alt="TUV Rheinland Logo" class="logo">
+        <h1>Certificate Verification</h1>
+        <p>Verify the authenticity of TUV Rheinland LLC certificates</p>
+      </header>
+
+      <div class="search-card">
+        <div class="search-box">
+          <input 
+            type="text" 
+            class="search-input" 
+            id="searchInput"
+            placeholder="Enter certificate number (e.g., TRO-OP-26-0001)"
+            autocomplete="off"
+          >
+          <button class="search-btn" id="searchBtn" onclick="searchCertificate()">
+            Verify
+          </button>
+        </div>
+        <p class="hint">Enter the certificate number to verify its validity</p>
+      </div>
+
+      <div class="result-card" id="resultCard">
+        <!-- Results will be displayed here -->
+      </div>
+
+      <footer class="footer">
+        <p>&copy; 2026 TUV Rheinland LLC. All rights reserved.</p>
+        <p style="margin-top: 8px;">For support, contact <a href="mailto:lifting@om.tuv.com">Lifting@om.tuv.com</a></p>
+      </footer>
+    </div>
+
+    <script>
+      let certificatesData = [];
+
+      // Load certificates data
+      async function loadCertificates() {
+        try {
+          const response = await fetch('certificates.json');
+          certificatesData = await response.json();
+        } catch (error) {
+          console.error('Failed to load certificates:', error);
+        }
+      }
+
+      // Get query parameter from URL
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
+
+      // Search certificate by number
+      function searchCertificate(query = null) {
+        const searchInput = document.getElementById('searchInput');
+        const resultCard = document.getElementById('resultCard');
+        const searchBtn = document.getElementById('searchBtn');
+
+        const searchTerm = query || searchInput.value.trim().toUpperCase();
+
+        if (!searchTerm) {
+          resultCard.classList.remove('show');
+          return;
+        }
+
+        // Update input if searching via query param
+        if (query) {
+          searchInput.value = query;
+        }
+
+        // Show loading
+        searchBtn.disabled = true;
+        searchBtn.textContent = 'Verifying...';
+
+        // Simulate brief loading for better UX
+        setTimeout(() => {
+          const certificate = certificatesData.find(cert => 
+            cert.certificateNumber.toUpperCase() === searchTerm ||
+            cert.id.toUpperCase() === searchTerm
+          );
+
+          if (certificate) {
+            displayCertificate(certificate);
+          } else {
+            displayNotFound(searchTerm);
+          }
+
+          resultCard.classList.add('show');
+          searchBtn.disabled = false;
+          searchBtn.textContent = 'Verify';
+        }, 300);
+      }
+
+      // Parse date from DD.MM.YYYY format
+      function parseDate(dateStr) {
+        const parts = dateStr.split('.');
+        if (parts.length === 3) {
+          const day = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+          const year = parseInt(parts[2], 10);
+          return new Date(year, month, day);
+        }
+        return null;
+      }
+
+      // Check if certificate is expired
+      function isCertificateExpired(cert) {
+        const validTillDate = parseDate(cert.validTill);
+        if (!validTillDate) return false;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        validTillDate.setHours(23, 59, 59, 999); // End of the valid day
+
+        return today > validTillDate;
+      }
+
+      // Display certificate with appropriate status
+      function displayCertificate(cert) {
+        const resultCard = document.getElementById('resultCard');
+        const isExpired = isCertificateExpired(cert);
+
+        if (isExpired) {
+          resultCard.innerHTML = `
+            <div class="seal-container">
+              <div class="stamp-impact expired"></div>
+              <div class="seal expired">
+                <span class="seal-icon">&#10008;</span>
+                <span class="seal-text">Expired</span>
+              </div>
+            </div>
+            <div class="result-header">
+              <span class="status-badge expired">
+                <svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Expired Certificate
+              </span>
+            </div>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Certificate Number</span>
+                <span class="detail-value">${cert.certificateNumber}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Name</span>
+                <span class="detail-value">${cert.name}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Qualification</span>
+                <span class="detail-value">${cert.qualification}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Company</span>
+                <span class="detail-value">${cert.company}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Employee Number</span>
+                <span class="detail-value">${cert.employeeNumber}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Issue Date</span>
+                <span class="detail-value">${cert.issueDate}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Valid Till</span>
+                <span class="detail-value" style="color: #dc2626; font-weight: 700;">${cert.validTill} (EXPIRED)</span>
+              </div>
+            </div>
+          `;
+        } else {
+          resultCard.innerHTML = `
+            <div class="seal-container">
+              <div class="stamp-impact valid"></div>
+              <div class="seal valid">
+                <span class="seal-icon">&#10004;</span>
+                <span class="seal-text">Verified</span>
+              </div>
+            </div>
+            <div class="result-header">
+              <span class="status-badge valid">
+                <svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Valid Certificate
+              </span>
+            </div>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Certificate Number</span>
+                <span class="detail-value">${cert.certificateNumber}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Name</span>
+                <span class="detail-value">${cert.name}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Qualification</span>
+                <span class="detail-value">${cert.qualification}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Company</span>
+                <span class="detail-value">${cert.company}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Employee Number</span>
+                <span class="detail-value">${cert.employeeNumber}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Issue Date</span>
+                <span class="detail-value">${cert.issueDate}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Valid Till</span>
+                <span class="detail-value">${cert.validTill}</span>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      // Display not found message
+      function displayNotFound(searchTerm) {
+        const resultCard = document.getElementById('resultCard');
+
+        resultCard.innerHTML = `
+          <div class="not-found">
+            <svg class="not-found-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <h3>Certificate Not Found</h3>
+            <p>No certificate found with number "${searchTerm}"</p>
+          </div>
+        `;
+      }
+
+      // Handle Enter key
+      document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          searchCertificate();
+        }
+      });
+
+      // Initialize
+      document.addEventListener('DOMContentLoaded', async function() {
+        await loadCertificates();
+
+        // Check for query parameter
+        const querySearch = getQueryParam('s');
+        if (querySearch) {
+          searchCertificate(querySearch.toUpperCase());
+        }
+      });
+    </script>
+  </body>
+</html>
